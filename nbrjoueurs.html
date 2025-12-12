@@ -40,11 +40,12 @@
     <button id="down" class="text-pink-300 text-4xl hover:text-white mt-2">
       <i class="fas fa-chevron-down"></i>
     </button>
+    <p id="minInfo" class="mt-4 text-sm text-center px-4">Minimum : 4 joueurs pour que le jeu reste fun.</p>
   </div>
 
   <!-- Bouton Play -->
   <div class="absolute bottom-6 right-6">
-    <a href="choisircarte.html" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center">
+    <a id="start" href="choisircarte.html" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center">
       <i class="fas fa-play text-xl"></i>
     </a>
   </div>
@@ -54,16 +55,36 @@
     const playerCount = document.getElementById('playerCount');
     const up = document.getElementById('up');
     const down = document.getElementById('down');
-    let count = 10;
+    const MIN = 4;
+    const MAX = 20;
+    let count = Math.max(MIN, Math.min(MAX, Number(localStorage.getItem('playerCount')) || 10));
+
+    const refreshLabel = () => {
+      playerCount.textContent = `${count} Joueurs`;
+    };
+
+    refreshLabel();
 
     up.addEventListener('click', () => {
-      if (count < 20) count++;
-      playerCount.textContent = `${count} Joueurs`;
+      if (count < MAX) count++;
+      refreshLabel();
     });
 
     down.addEventListener('click', () => {
-      if (count > 2) count--;
-      playerCount.textContent = `${count} Joueurs`;
+      if (count > MIN) count--;
+      refreshLabel();
+    });
+
+    // Enregistrer et forcer le minimum avant de passer au choix des cartes
+    document.getElementById('start').addEventListener('click', (e) => {
+      if (count < MIN) {
+        e.preventDefault();
+        return;
+      }
+      localStorage.setItem('playerCount', count);
+      // On réinitialise les affectations précédentes pour une nouvelle partie
+      localStorage.removeItem('secretAssignments');
+      localStorage.removeItem('players');
     });
   </script>
 

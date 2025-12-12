@@ -11,7 +11,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Braah One', sans-serif; }
-    /* Masquer la barre de scroll mais garder le défilement actif */
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -22,55 +21,129 @@
   <header class="flex items-center p-6">
     <img src="assets/logo.png" alt="Secret Story Logo" class="w-[4.5rem]" />
     <h1 class="text-[1rem] mx-4 text-black bg-white p-4 rounded-xl">Chaque joueur choisit une carte</h1>
+    <span id="playerCountLabel" class="ml-auto text-sm bg-black/40 px-3 py-1 rounded">-- joueurs</span>
   </header>
 
- <main id="cardGrid"
-      class="flex-1 overflow-y-auto no-scrollbar px-4 pb-24 grid grid-cols-2 gap-6 place-content-start">
-</main>
+  <main id="cardGrid"
+        class="flex-1 overflow-y-auto no-scrollbar px-4 pb-24 grid grid-cols-2 gap-6 place-content-start">
+  </main>
 
-
-
-  <!-- Bouton Play (fixe) -->
+  <!-- Bouton démarrage (fixe) -->
   <div class="absolute bottom-6 right-6">
-    <a href="cartesecret.html" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center">
-      <i class="fas fa-play text-xl"></i>
-    </a>
+    <button id="startGame" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center opacity-60 cursor-not-allowed">
+      <span id="startLabel" class="text-lg font-bold">...</span>
+    </button>
   </div>
 
   <!-- JS dynamique -->
- <script>
-  const numberOfCards = 12;
-  const cardGrid = document.getElementById('cardGrid');
+  <script>
+    const cardGrid = document.getElementById('cardGrid');
+    const startGame = document.getElementById('startGame');
+    const startLabel = document.getElementById('startLabel');
+    const playerCountLabel = document.getElementById('playerCountLabel');
+    const MIN_PLAYERS = 4;
+    const MAX_PLAYERS = 20;
+    const storedCount = Number(localStorage.getItem('playerCount')) || MIN_PLAYERS;
+    const playerCount = Math.max(MIN_PLAYERS, Math.min(MAX_PLAYERS, storedCount));
 
-  for (let i = 0; i < numberOfCards; i++) {
-    const card = document.createElement('div');
-    card.className = [
-      "relative",
-      // largeur = ~40% de l’écran, hauteur proportionnelle
-      "w-[40vw] max-w-[160px]",
-      "h-[25vh] max-h-[220px]",
-      "rounded-[10px] border-[3px] border-white",
-      "shadow-[7px_5px_4px_rgba(0,0,0,0.25)]",
-      "flex items-center justify-center",
-      "bg-[radial-gradient(50%_50%_at_50%_50%,_#FF68B7_0%,_#FF049C_100%)]"
-    ].join(" ");
+    playerCountLabel.textContent = `${playerCount} joueurs`;
 
-    const logo = document.createElement('img');
-    logo.src = "assets/logo.png";
-    logo.alt = "Carte Secret Story";
-    logo.className = "w-1/2"; // logo prend la moitié de la carte
-    card.appendChild(logo);
+    const SECRET_POOL = [
+      { title: "Je parle 6 langues", textHint: "J'ai trop de dictionnaires", audioHint: "Voix multilingue enchainee", imageHint: "Pile de livres multilingues" },
+      { title: "J'ai saute en parachute 12 fois", textHint: "Je connais le vent mieux que ma chambre", audioHint: "Souffle d'air + bip d'altimetre", imageHint: "Silhouette en chute libre" },
+      { title: "Je fais de la cuisine moleculaire", textHint: "L'azote liquide est mon meilleur ami", audioHint: "Crepitement/bulles douces", imageHint: "Assiette futuriste avec spheres" },
+      { title: "J'ai un tatouage galaxie cache", textHint: "J'emporte la Voie lactee partout", audioHint: "Ambiance spatiale synthwave lente", imageHint: "Motif galaxie sur peau" },
+      { title: "J'ai joue incognito dans un film", textHint: "On me voit 3 secondes si on fait pause", audioHint: "Clap + murmure de plateau", imageHint: "Plateau de tournage flou" },
+      { title: "Je gagne les quiz musique 80s", textHint: "Je reconnais un tube en 2 secondes", audioHint: "Riff synthe 80s", imageHint: "Cassettes roses empilees" },
+      { title: "Je resous les Rubik's cube en 40s", textHint: "Mes doigts ne tiennent pas en place", audioHint: "Cliquetis de cube rapide", imageHint: "Cube eclate en couleurs" },
+      { title: "J'ai campe au pied d'un volcan", textHint: "Je dors bien meme avec un grondement", audioHint: "Grondement sourd + feu", imageHint: "Tente devant un volcan rougeoyant" },
+      { title: "Je fabrique mes vetements", textHint: "Mes patrons envahissent mon salon", audioHint: "Bruit de machine a coudre", imageHint: "Bobines et tissus colores" },
+      { title: "Je collectionne les instruments", textHint: "Mon salon est un mini studio", audioHint: "Accord de guitare + beat leger", imageHint: "Guitare, clavier et ukulele alignes" },
+      { title: "Je suis apneiste amateur", textHint: "Je retiens mon souffle en lisant", audioHint: "Bulle d'eau et respiration calme", imageHint: "Silhouette sous-marine en apnee" },
+      { title: "J'ai deja traverse un desert a velo", textHint: "Le sable est mon pire ennemi", audioHint: "Vent sec + cliquetis de chaine", imageHint: "Cycliste dans les dunes" }
+    ];
 
-    if (i === 0 || i === 1) {
-      const label = document.createElement('span');
-      label.className = "absolute bottom-2 left-2 text-xs";
-      label.textContent = `Joueur ${i + 1}`;
-      card.appendChild(label);
-    }
+    const loadAssignments = () => {
+      const stored = JSON.parse(localStorage.getItem('secretAssignments') || '[]');
+      if (stored.length === playerCount) return stored;
+      const shuffled = [...SECRET_POOL].sort(() => Math.random() - 0.5);
+      while (shuffled.length < playerCount) {
+        shuffled.push(SECRET_POOL[shuffled.length % SECRET_POOL.length]);
+      }
+      const picked = shuffled.slice(0, playerCount);
+      localStorage.setItem('secretAssignments', JSON.stringify(picked));
+      return picked;
+    };
 
-    cardGrid.appendChild(card);
-  }
-</script>
-<script src="register-sw.js"></script>
+    let secretAssignments = loadAssignments();
+    let players = JSON.parse(localStorage.getItem('players') || '[]');
+
+    const updateStartButton = () => {
+      const assigned = players.filter(p => p && p.name && p.name.trim().length > 0).length;
+      const missing = Math.max(0, playerCount - assigned);
+      if (missing === 0) {
+        startGame.classList.remove('opacity-60', 'cursor-not-allowed');
+        startLabel.textContent = 'GO';
+        startGame.disabled = false;
+      } else {
+        startGame.classList.add('opacity-60', 'cursor-not-allowed');
+        startLabel.textContent = missing === 1 ? '1 carte' : `${missing} cartes`;
+        startGame.disabled = true;
+      }
+    };
+
+    const renderCards = () => {
+      cardGrid.innerHTML = "";
+      for (let i = 0; i < playerCount; i++) {
+        const card = document.createElement('div');
+        card.className = [
+          "relative",
+          "w-[40vw] max-w-[160px]",
+          "h-[25vh] max-h-[220px]",
+          "rounded-[10px] border-[3px] border-white",
+          "shadow-[7px_5px_4px_rgba(0,0,0,0.25)]",
+          "flex items-center justify-center",
+          "bg-[radial-gradient(50%_50%_at_50%_50%,_#FF68B7_0%,_#FF049C_100%)]",
+          "cursor-pointer"
+        ].join(" ");
+
+        const logo = document.createElement('img');
+        logo.src = "assets/logo.png";
+        logo.alt = "Carte Secret Story";
+        logo.className = "w-1/2";
+        card.appendChild(logo);
+
+        const label = document.createElement('span');
+        label.className = "absolute bottom-2 left-2 text-xs bg-black/50 px-2 py-1 rounded";
+        const playerName = players[i]?.name;
+        label.textContent = playerName ? `Pris par ${playerName}` : `Carte ${i + 1}`;
+        card.appendChild(label);
+
+        card.addEventListener('click', () => {
+          const name = prompt(`Nom du joueur pour la carte ${i + 1} ?`);
+          if (!name || !name.trim()) return;
+          players[i] = { name: name.trim() };
+          localStorage.setItem('players', JSON.stringify(players));
+          localStorage.setItem('currentPlayerIndex', i);
+          // stocke aussi l'affectation courante pour la page suivante
+          localStorage.setItem('playerCount', playerCount);
+          renderCards();
+          updateStartButton();
+          window.location.href = "cartesecret.html";
+        });
+
+        cardGrid.appendChild(card);
+      }
+    };
+
+    startGame.addEventListener('click', () => {
+      if (startGame.disabled) return;
+      window.location.href = "maingame.html";
+    });
+
+    renderCards();
+    updateStartButton();
+  </script>
+  <script src="register-sw.js"></script>
 </body>
 </html>
