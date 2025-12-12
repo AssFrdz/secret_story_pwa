@@ -18,33 +18,60 @@
 <body class="bg-[#2561D1] text-white w-screen h-screen overflow-hidden flex flex-col">
 
   <!-- Header (fixe) -->
-  <header class="flex items-center p-6">
+  <header class="flex items-center p-4 gap-3">
     <img src="assets/logo.png" alt="Secret Story Logo" class="w-[4.5rem]" />
-    <h1 class="text-[1rem] mx-4 text-black bg-white p-4 rounded-xl">Chaque joueur choisit une carte</h1>
-    <span id="playerCountLabel" class="ml-auto text-sm bg-black/40 px-3 py-1 rounded">-- joueurs</span>
+    <div class="flex flex-col flex-1 gap-1">
+      <h1 class="text-[1rem] text-black bg-white px-3 py-2 rounded-xl">Chaque joueur choisit une carte</h1>
+      <div class="flex items-center gap-2 text-xs">
+        <span id="playerCountLabel" class="bg-black/40 px-3 py-1 rounded">-- joueurs</span>
+        <span id="progressLabel" class="bg-white/30 px-3 py-1 rounded">0/0 prises</span>
+      </div>
+    </div>
   </header>
 
   <main id="cardGrid"
-        class="flex-1 overflow-y-auto no-scrollbar px-4 pb-24 grid grid-cols-2 gap-6 place-content-start">
+        class="flex-1 overflow-y-auto no-scrollbar px-4 pb-32 grid grid-cols-2 gap-4 sm:gap-6 place-content-start">
   </main>
 
   <!-- Bouton démarrage (fixe) -->
-  <div class="absolute bottom-6 right-6">
-    <button id="startGame" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center opacity-60 cursor-not-allowed">
+  <div class="absolute bottom-4 inset-x-0 flex items-center justify-between px-4 gap-3">
+    <button id="resetBtn" class="px-4 py-3 rounded-full bg-white/20 text-white text-sm border border-white/40">Réinitialiser</button>
+    <button id="startGame" class="flex-1 h-14 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center opacity-60 cursor-not-allowed">
       <span id="startLabel" class="text-lg font-bold">...</span>
     </button>
   </div>
 
+  <!-- Modal nom joueur -->
+  <div id="nameModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-30 px-4">
+    <div class="bg-white text-black rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+      <h3 class="text-lg font-bold mb-2">Nom du joueur</h3>
+      <p class="text-sm text-gray-600 mb-4">La carte sera marquée à son nom.</p>
+      <input id="playerNameInput" type="text" class="w-full border rounded-xl px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-pink-500" placeholder="Ex: Alex">
+      <div class="flex gap-2">
+        <button id="cancelModal" class="flex-1 px-4 py-2 rounded-xl border border-gray-300">Annuler</button>
+        <button id="confirmModal" class="flex-1 px-4 py-2 rounded-xl bg-pink-500 text-white">Valider</button>
+      </div>
+    </div>
+  </div>
+
   <!-- JS dynamique -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" integrity="sha512-2pKXCBfbNILIr05oig3NbS1Ry6j8Tz6kKI/hX3sI5Yucs5cjox96D65gis6pZeRAEIJ5zsxFrqxbPjzvY4xX2Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
     const cardGrid = document.getElementById('cardGrid');
     const startGame = document.getElementById('startGame');
     const startLabel = document.getElementById('startLabel');
     const playerCountLabel = document.getElementById('playerCountLabel');
+    const progressLabel = document.getElementById('progressLabel');
+    const nameModal = document.getElementById('nameModal');
+    const nameInput = document.getElementById('playerNameInput');
+    const cancelModal = document.getElementById('cancelModal');
+    const confirmModal = document.getElementById('confirmModal');
+    const resetBtn = document.getElementById('resetBtn');
     const MIN_PLAYERS = 4;
     const MAX_PLAYERS = 20;
     const storedCount = Number(localStorage.getItem('playerCount')) || MIN_PLAYERS;
     const playerCount = Math.max(MIN_PLAYERS, Math.min(MAX_PLAYERS, storedCount));
+    let selectedIndex = null;
 
     playerCountLabel.textContent = `${playerCount} joueurs`;
 
@@ -78,9 +105,25 @@
     let secretAssignments = loadAssignments();
     let players = JSON.parse(localStorage.getItem('players') || '[]');
 
+    const openModal = (index) => {
+      selectedIndex = index;
+      nameInput.value = players[index]?.name || "";
+      nameModal.classList.remove('hidden');
+      nameModal.classList.add('flex');
+      nameInput.focus();
+      gsap.fromTo(nameModal.querySelector('div'), { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.2, ease: "power2.out" });
+    };
+
+    const closeModal = () => {
+      nameModal.classList.add('hidden');
+      nameModal.classList.remove('flex');
+      selectedIndex = null;
+    };
+
     const updateStartButton = () => {
       const assigned = players.filter(p => p && p.name && p.name.trim().length > 0).length;
       const missing = Math.max(0, playerCount - assigned);
+      progressLabel.textContent = `${assigned}/${playerCount} prises`;
       if (missing === 0) {
         startGame.classList.remove('opacity-60', 'cursor-not-allowed');
         startLabel.textContent = 'GO';
@@ -97,14 +140,17 @@
       for (let i = 0; i < playerCount; i++) {
         const card = document.createElement('div');
         card.className = [
+          "card",
           "relative",
-          "w-[40vw] max-w-[160px]",
-          "h-[25vh] max-h-[220px]",
-          "rounded-[10px] border-[3px] border-white",
-          "shadow-[7px_5px_4px_rgba(0,0,0,0.25)]",
+          "w-[42vw] max-w-[160px]",
+          "h-[26vh] max-h-[220px]",
+          "rounded-[12px] border-[3px] border-white",
+          "shadow-[7px_5px_8px_rgba(0,0,0,0.25)]",
           "flex items-center justify-center",
           "bg-[radial-gradient(50%_50%_at_50%_50%,_#FF68B7_0%,_#FF049C_100%)]",
-          "cursor-pointer"
+          "cursor-pointer",
+          "transition-transform",
+          "active:scale-95"
         ].join(" ");
 
         const logo = document.createElement('img');
@@ -114,27 +160,48 @@
         card.appendChild(logo);
 
         const label = document.createElement('span');
-        label.className = "absolute bottom-2 left-2 text-xs bg-black/50 px-2 py-1 rounded";
+        label.className = "absolute bottom-2 left-2 text-[11px] bg-black/50 px-2 py-1 rounded";
         const playerName = players[i]?.name;
         label.textContent = playerName ? `Pris par ${playerName}` : `Carte ${i + 1}`;
         card.appendChild(label);
 
         card.addEventListener('click', () => {
-          const name = prompt(`Nom du joueur pour la carte ${i + 1} ?`);
-          if (!name || !name.trim()) return;
-          players[i] = { name: name.trim() };
-          localStorage.setItem('players', JSON.stringify(players));
-          localStorage.setItem('currentPlayerIndex', i);
-          // stocke aussi l'affectation courante pour la page suivante
-          localStorage.setItem('playerCount', playerCount);
-          renderCards();
-          updateStartButton();
-          window.location.href = "cartesecret.html";
+          openModal(i);
         });
 
         cardGrid.appendChild(card);
       }
+      gsap.from(".card", { opacity: 0, y: 20, duration: 0.4, stagger: 0.05, ease: "power2.out" });
     };
+
+    confirmModal.addEventListener('click', () => {
+      if (selectedIndex === null) return;
+      const name = nameInput.value.trim();
+      if (!name) return;
+      players[selectedIndex] = { name };
+      localStorage.setItem('players', JSON.stringify(players));
+      localStorage.setItem('currentPlayerIndex', selectedIndex);
+      localStorage.setItem('playerCount', playerCount);
+      closeModal();
+      renderCards();
+      updateStartButton();
+      window.location.href = "cartesecret.html";
+    });
+
+    cancelModal.addEventListener('click', closeModal);
+    nameModal.addEventListener('click', (e) => {
+      if (e.target === nameModal) closeModal();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      players = [];
+      localStorage.removeItem('players');
+      localStorage.removeItem('secretAssignments');
+      localStorage.removeItem('currentPlayerIndex');
+      secretAssignments = loadAssignments();
+      renderCards();
+      updateStartButton();
+    });
 
     startGame.addEventListener('click', () => {
       if (startGame.disabled) return;
