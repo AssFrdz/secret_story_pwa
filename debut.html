@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Secret Story - Intro</title>
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <style>
+    body {
+      font-family: 'Braah One', sans-serif;
+    }
+  </style>
+</head>
+<body class="bg-[#2561D1] text-white w-screen h-screen flex flex-col items-center justify-start relative">
+
+  <div class="h-full w-full items-center justify-center pt-32">
+
+ 
+
+      <!-- Logo -->
+  <img src="assets/logo.png" alt="Secret Story Logo" class="w-[12.5rem] m-auto relative top-24" />
+
+  <!-- Carte blanche -->
+  <div class="bg-white h-[40%] border-[3px] border-pink-500 rounded-xl shadow-lg px-6 py-8 max-w-md w-[80%] text-center m-auto">
+  
+    
+    <p class="text-pink-500 text-lg font-bold leading-relaxed mt-16">
+      TOUT LE MONDE A SON SECRET.<br />
+      C'EST PARTI !<br />
+      LES JEUX PEUVENT COMMENCER ....
+    </p>
+  </div>
+
+   </div>
+
+  <!-- Bouton Play -->
+  <button class="absolute bottom-6 right-6 w-16 h-16 rounded-full bg-white text-blue-500 shadow-lg flex items-center justify-center hover:bg-pink-100 transition">
+    <i class="fas fa-play text-2xl text-pink-500"></i>
+  </button>
+
+<audio id="soundStop" class="hidden" src="assets/sounds/debut.mp3" autoplay></audio>
+
+<button onclick="playSound" class="hidden play-snd-btn"></button>
+
+
+<script>
+
+  function playSound(){
+    document.getElementById("soundStop").currentTime = 0;
+    document.getElementById("soundStop").play();
+  };
+
+window.onload = () =>{
+  document.querySelector(".play-snd-btn").clicked = true;
+  
+}
+
+
+</script>
+
+<script src="/register-sw.js"></script>
+</body>
+</html>

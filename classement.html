@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Résultat Final - Secret Story</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Braah One', sans-serif;
+      margin: 0;
+      overflow: hidden;
+      color: white;
+      height:100%;
+    }
+
+    /* Animation STOP */
+    .stop-screen {
+      position: fixed;
+      inset: 0;
+      background: #071F4C;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-items: center;
+      text-align: center;
+      z-index: 50;
+      animation: fadeOut 3s ease forwards;
+      animation-delay: 3s;
+      height:100%;
+    }
+
+    .stop-text {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #FE1690;
+      animation: pulse 1s infinite;
+    }
+
+    .stop-sub {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    /* Résultat final */
+    .fadeIn {
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .winner {
+      background: gold;
+      color: black;
+      font-weight: bold;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      box-shadow: 0 0 20px rgba(255,215,0,0.8);
+      transform: scale(1.05);
+    }
+
+    .bg-final {
+      background: linear-gradient(135deg, #2561D1 70%, #FE1690 30%);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Animation STOP -->
+<div id="stopScreen" class="stop-screen">
+    <div class="m-auto"> <div class="stop-text">STOP</div>
+  <div class="stop-sub">Le jeu est fini :</div>
+  <div class="stop-sub">Seul <span class="text-yellow-400 font-bold">Sara</span> a réussi à garder son secret !</div>
+
+
+    </div>
+ </div>
+
+<!-- Résultat final -->
+<div id="finalResult" class="hidden bg-final w-full h-screen flex flex-col items-center justify-start px-4 py-6 text-center fadeIn">
+
+  <!-- Logo -->
+  <img src="assets/logo.png" alt="Secret Story Logo" class="w-[8rem] sm:w-[10rem] mb-6" />
+
+  <!-- Titre -->
+  <h1 class="text-2xl sm:text-3xl font-bold mb-6">RÉSULTAT FINAL 🎉</h1>
+
+  <!-- Classement -->
+  <div class="w-full max-w-md space-y-4">
+
+    <!-- Gagnant -->
+    <div class="winner flex justify-between items-center text-lg">
+      <span>🥇 Sara</span>
+      <span>1500 pts</span>
+    </div>
+
+    <!-- Autres joueurs -->
+    <div class="flex justify-between items-center bg-white text-black rounded-lg px-4 py-2">
+      <span>🥈 Fatou</span>
+      <span>1400 pts</span>
+    </div>
+    <div class="flex justify-between items-center bg-white text-black rounded-lg px-4 py-2">
+      <span>🥉 Ibti</span>
+      <span>1300 pts</span>
+    </div>
+  </div>
+
+  <!-- Bouton continuer -->
+  <button onclick="continueGame()" class="mt-8 w-full sm:w-auto bg-white text-pink-600 px-6 py-3 rounded-full font-bold shadow-md hover:bg-pink-100 transition">
+    Accueil
+  </button>
+</div>
+
+<script>
+  window.onload = () => {
+    // Après 3s d'animation STOP → afficher le résultat final
+    setTimeout(() => {
+      document.getElementById("stopScreen").style.display = "none";
+      document.getElementById("finalResult").classList.remove("hidden");
+    }, 3000);
+  };
+
+  function continueGame() {
+    alert("Retour au jeu !");
+    // Ici tu peux rediriger vers la suite du jeu
+  }
+</script>
+
+<script src="/register-sw.js"></script>
+</body>
+</html>

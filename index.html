@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Secret Story</title>
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+   <style>
+    /* Diagonal split background */
+    * {
+      font-family: 'Braah One', sans-serif;
+    }
+    .diagonal-bg {
+      background: linear-gradient(170deg, #3b82f6 50%, #ec4899 50%);
+    }
+  </style>
+</head>
+<body class="relative w-screen h-screen diagonal-bg text-white font-sans overflow-hidden">
+
+  <!-- Logo central -->
+  <div class="absolute inset-0 flex items-center justify-center z-10">
+    <div class="text-center">
+      <img src="assets/logo.png" alt="Secret Story Logo" class="w-64 mx-auto mb-4" />
+    </div>
+  </div>
+
+  <!-- Menu en haut à droite -->
+  <div class="absolute hidden top-4 right-4 z-20 text-right space-y-2">
+    <button class="text-sm hover:underline">Règles du jeu</button><br />
+    <button class="text-sm hover:underline">Menu principal</button><br />
+    <button class="text-sm hover:underline">Classement</button>
+  </div>
+
+  <!-- Icône info Font Awesome -->
+  <div class="absolute top-4 right-4 z-20">
+    <button class="w-7 h-7 rounded-full bg-white text-blue-500 flex items-center justify-center shadow">
+      <i class="fas fa-info"></i>
+    </button>
+  </div>
+
+  <!-- Bouton Play Font Awesome -->
+  <div class="absolute bottom-6 right-6 z-20">
+    <a href="nbrj  oueurs.html" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center">
+      <i class="fas fa-play text-xl"></i>
+    </a>
+  </div>
+
+  <script src="/register-sw.js"></script>
+</body>
+</html>

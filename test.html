@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Test Secret Story avec Voix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  <!-- ResponsiveVoice -->
+  <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_KEY"></script>
+  <style>
+    body {
+      font-family: 'Braah One', sans-serif;
+      margin: 0;
+      overflow: hidden;
+      color: white;
+    }
+
+    /* STOP screen */
+    .stop-screen {
+      position: fixed;
+      inset: 0;
+      background: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 50;
+    }
+
+    .stop-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: red;
+      text-shadow: 0 0 15px white;
+      animation: pulse 1s infinite;
+    }
+
+    .stop-sub {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    /* Résultat final */
+    .fadeIn {
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .winner {
+      background: gold;
+      color: black;
+      font-weight: bold;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      box-shadow: 0 0 20px rgba(255,215,0,0.8);
+      transform: scale(1.05);
+    }
+
+    .bg-final {
+      background: linear-gradient(135deg, #2561D1 70%, #FE1690 30%);
+    }
+  </style>
+</head>
+<body>
+
+<!-- STOP screen -->
+<div id="stopScreen" class="stop-screen">
+  <div class="stop-text">STOP</div>
+  <div class="stop-sub">Le jeu est fini :</div>
+  <div class="stop-sub">Seul <span class="text-yellow-400 font-bold">Sara</span> a réussi à garder son secret !</div>
+</div>
+
+<!-- Résultat final -->
+<div id="finalResult" class="hidden bg-final w-full h-full flex flex-col items-center justify-start px-4 py-6 text-center fadeIn">
+
+  <!-- Logo -->
+  <img src="assets/logo.png" alt="Secret Story Logo" class="w-[8rem] sm:w-[10rem] mb-6" />
+
+  <!-- Titre -->
+  <h1 class="text-2xl sm:text-3xl font-bold mb-6">RÉSULTAT FINAL 🎉</h1>
+
+  <!-- Classement -->
+  <div class="w-full max-w-md space-y-4">
+
+    <!-- Gagnant -->
+    <div class="winner flex justify-between items-center text-lg">
+      <span>🥇 Sara</span>
+      <span>1500 pts</span>
+    </div>
+
+    <!-- Autres joueurs -->
+    <div class="flex justify-between items-center bg-white text-black rounded-lg px-4 py-2">
+      <span>🥈 Fatou</span>
+      <span>1400 pts</span>
+    </div>
+    <div class="flex justify-between items-center bg-white text-black rounded-lg px-4 py-2">
+      <span>🥉 Ibti</span>
+      <span>1300 pts</span>
+    </div>
+  </div>
+
+  <!-- Bouton continuer -->
+  <button onclick="continueGame()" class="mt-8 w-full sm:w-auto bg-white text-pink-600 px-6 py-3 rounded-full font-bold shadow-md hover:bg-pink-100 transition">
+    CONTINUER
+  </button>
+</div>
+
+<!-- Sons -->
+<audio id="soundAlarme" src="assets/sounds/buzzer.mp3"></audio>
+<audio id="soundSwoosh" src="assets/sounds/swoosh.mp3"></audio>
+<audio id="soundJingle" src="assets/sounds/drum_roll.mp3"></audio>
+
+<script>
+  function playSound(id) {
+    const audio = document.getElementById(id);
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
+  }
+
+  window.onload = () => {
+    // STOP screen sounds
+    playSound("soundAlarme");
+
+    // Voix narrative ResponsiveVoice
+    setTimeout(() => {
+      responsiveVoice.speak(
+        "STOP, le jeu est fini : seul Sara a réussi à garder son secret !",
+        "French Female",
+        { pitch: 0.9, rate: 0.95 }
+      );
+    }, 1000);
+
+    // Transition swoosh
+    setTimeout(() => playSound("soundSwoosh"), 2500);
+
+    // Résultat final
+    setTimeout(() => {
+      playSound("soundJingle");
+      document.getElementById("stopScreen").style.display = "none";
+      document.getElementById("finalResult").classList.remove("hidden");
+    }, 4000);
+  };
+
+  function continueGame() {
+    alert("Retour au jeu !");
+    // Redirection ou logique suivante
+  }
+</script>
+
+<script src="/register-sw.js"></script>
+</body>
+</html>

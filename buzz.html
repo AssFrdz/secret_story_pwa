@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Buzz Alert</title>
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Braah One', sans-serif;
+      background: linear-gradient(145deg, #FE1690 45%, #2561D1 45%);
+    }
+
+    .fade {
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+    .fade.show {
+      opacity: 1;
+    }
+
+    .text-outline {
+      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff,
+                   -1px 1px 0 #fff, 1px 1px 0 #fff;
+    }
+
+    /* Animation des barres vocales */
+    .bar {
+      width: 6px;
+      height: 20px;
+      background: white;
+      border-radius: 4px;
+      animation: bounce 1s infinite ease-in-out;
+    }
+    .bar:nth-child(2) { animation-delay: 0.2s; }
+    .bar:nth-child(3) { animation-delay: 0.4s; }
+    .bar:nth-child(4) { animation-delay: 0.6s; }
+    .bar:nth-child(5) { animation-delay: 0.8s; }
+
+    @keyframes bounce {
+      0%, 100% { transform: scaleY(0.4); }
+      50% { transform: scaleY(1.2); }
+    }
+
+    /* Halo autour du joueur actif */
+    .active {
+      color: #FFD700;
+      text-shadow: 0 0 15px #fff, 0 0 25px #FFD700;
+      transform: scale(1.2);
+      transition: all 0.3s ease;
+    }
+
+    /* Barre de progression timer */
+    #progressBar {
+      height: 10px;
+      background: #FFD700;
+      border-radius: 5px;
+      transition: width 1s linear;
+    }
+  </style>
+</head>
+<body class="w-screen h-screen font-['Braah_One'] text-white overflow-hidden">
+
+<!-- Écran 1 -->
+<div id="screen1" class="fade show flex flex-col items-center justify-center h-full text-center space-y-6">
+  <div class="bg-[#FBB9B9] rounded-full p-6 shadow-lg">
+    <img src="assets/siren.png" alt="Sirène" class="w-[5rem]" />
+  </div>
+  <h1 class="text-3xl uppercase">QUELQU'UN A BUZZÉ</h1>
+</div>
+
+<!-- Écran 2 -->
+<div id="screen2" class="fade hidden flex flex-col justify-between items-center h-full px-6 py-8">
+  <div class="text-center text-lg">
+    <i class="fa-solid fa-triangle-exclamation text-yellow-400"></i>
+    : Cette opération coûte <span class="text-yellow-400 font-bold">500 pts</span>
+  </div>
+  <div class="bg-[#FBB9B9] rounded-full p-6 shadow-lg">
+    <img src="assets/siren.png" alt="Sirène" class="w-[5rem]" />
+  </div>
+  <div class="w-full max-w-md space-y-6">
+    <div>
+      <label class="block text-[1.5rem] text-center font-bold mb-2">Qui a buzzé ?</label>
+      <input type="text" class="w-full px-4 py-2 rounded-md bg-white text-black text-center" placeholder="Nom du joueur" />
+    </div>
+    <div>
+      <label class="block text-[1.5rem] text-center font-bold mb-2">Qui vas-tu révéler ?</label>
+      <input type="text" class="w-full px-4 py-2 rounded-md bg-white text-black text-center" placeholder="Nom ciblé" />
+    </div>
+  </div>
+  <div class="w-full flex justify-between px-6 mt-8">
+    <button onclick="showScreen(2)" class="bg-white text-pink-500 w-[4rem] h-[4rem] rounded-full shadow-md flex items-center justify-center hover:bg-pink-100 transition">
+      <i class="fas fa-arrow-left text-2xl"></i>
+    </button>
+    <button onclick="showScreen(3)" class="bg-white text-pink-500 w-[4rem] h-[4rem] rounded-full shadow-md flex items-center justify-center hover:bg-pink-100 transition">
+      <i class="fas fa-arrow-right text-2xl"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Écran 3 : Décrire le secret -->
+<div id="screen3" class="hidden w-screen h-screen bg-[#FE1690] flex flex-col justify-between px-6 py-8 text-white font-['Braah_One']">
+
+  <!-- Header : logo + message côte à côte -->
+  <div class="flex items-center justify-center space-x-4">
+    <img src="assets/logo.png" alt="Secret Story Logo" class="w-[5rem]" />
+    <h1 id="speakerText" class="text-[1rem] bg-white text-black px-4 py-2 rounded-xl font-bold">
+      Joueur 2 parle...
+    </h1>
+  </div>
+
+  <!-- Animation vocale + timer au centre -->
+  <div class="flex flex-col items-center space-y-6 mt-8 w-full max-w-md mx-auto">
+    <div class="flex items-end justify-center space-x-2">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+    <p id="timer" class="text-lg mt-4">Temps restant : 20s</p>
+    <div class="w-full bg-white rounded-md">
+      <div id="progressBar" style="width:100%; height:10px; background:#FFD700; border-radius:5px;"></div>
+    </div>
+  </div>
+
+  <!-- Icônes joueurs en bas -->
+  <div class="flex justify-center space-x-12 mt-8">
+    <div id="player2" class="flex flex-col items-center">
+      <i class="fa-solid fa-user text-5xl"></i>
+      <span class="mt-2">Joueur 2</span>
+    </div>
+    <div id="player3" class="flex flex-col items-center">
+      <i class="fa-solid fa-user text-5xl"></i>
+      <span class="mt-2">Joueur 3</span>
+    </div>
+  </div>
+
+
+</div>
+
+
+<!-- Popup finale -->
+<div id="finalPopup" class="hidden fixed inset-0 bg-[#393939] bg-opacity-80 flex flex-col items-center justify-center text-white z-50 font-['Braah_One'] px-6 py-8 space-y-6">
+
+  
+
+  <!-- Champ de réponse -->
+  <div class="w-full max-w-md text-center mt-6">
+    <label class="block text-lg mb-2">Quel est le secret ?</label>
+    <input type="text" class="w-full px-4 py-2 rounded-md bg-white text-black text-center" placeholder="Tape ta réponse ici..." />
+  </div>
+
+  <!-- Boutons -->
+  <div class="flex space-x-4 mt-6">
+    <button class="bg-pink-600 text-white px-6 py-2 rounded-full font-bold shadow-md hover:bg-pink-700 transition"> <a href="resultatbuzz.html"> VALIDER</a> </button>
+    
+  </div>
+</div>
+
+
+<script>
+  let currentSpeaker = 2;   // commence avec Joueur 2
+  let timeLeft = 20;        // secondes restantes
+  let interval;             // intervalle du timer
+
+  // Lance le timer
+  function startTimer() {
+    interval = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timer").textContent = "Temps restant : " + timeLeft + "s";
+      document.getElementById("progressBar").style.width = (timeLeft / 20 * 100) + "%";
+
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        switchSpeaker();
+      }
+    }, 1000);
+  }
+
+  // Change de joueur
+  function switchSpeaker() {
+    if (currentSpeaker === 2) {
+      currentSpeaker = 3;
+      timeLeft = 20;
+      document.getElementById("speakerText").textContent = "Joueur 3 parle...";
+      highlightSpeaker(3);
+      startTimer();
+    } else {
+      document.getElementById("speakerText").textContent = "Fin du tour";
+      document.getElementById("timer").textContent = "";
+      document.getElementById("progressBar").style.width = "0%";
+      removeHighlight();
+    // Affiche la popup finale
+    document.getElementById("finalPopup").classList.remove("hidden");
+  
+    }
+  }
+
+  // Met en avant le joueur actif
+  function highlightSpeaker(n) {
+    removeHighlight();
+    document.querySelector("#player" + n + " i").classList.add("active");
+  }
+
+  // Supprime les effets actifs
+  function removeHighlight() {
+    document.querySelector("#player2 i").classList.remove("active");
+    document.querySelector("#player3 i").classList.remove("active");
+  }
+
+  // Initialisation de l’écran 3
+  function initScreen3() {
+    currentSpeaker = 2;
+    timeLeft = 20;
+    document.getElementById("speakerText").textContent = "Joueur 2 parle...";
+    document.getElementById("timer").textContent = "Temps restant : 20s";
+    document.getElementById("progressBar").style.width = "100%";
+    highlightSpeaker(2);
+    startTimer();
+  }
+
+  // Fonction pour basculer entre les écrans
+  function showScreen(n) {
+    document.getElementById('screen1')?.classList.add('hidden');
+    document.getElementById('screen2')?.classList.add('hidden');
+    document.getElementById('screen3')?.classList.add('hidden');
+
+    document.getElementById('screen' + n)?.classList.remove('hidden');
+
+    // Animation fade
+    document.getElementById('screen' + n)?.classList.add('show');
+
+    // Si on arrive sur l’écran 3 → lancer l’animation vocale
+    if (n === 3) {
+      initScreen3();
+    }
+  }
+
+  // Affiche l’écran 1 au chargement, puis passe à l’écran 2 après 2 secondes
+  window.addEventListener("load", () => {
+    showScreen(1);
+    setTimeout(() => {
+      showScreen(2);
+    }, 2000);
+  });
+</script>
+
+<script src="/register-sw.js"></script>
+</body>
+</html>

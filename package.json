@@ -1,0 +1,16 @@
+{
+  "name": "secret_story",
+  "version": "1.0.0",
+  "main": "register-sw.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "tailwindcss -c tailwind.config.js -i ./assets/tailwind.src.css -o ./assets/tailwind.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

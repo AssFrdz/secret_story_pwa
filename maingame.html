@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Indice Secret Story</title>
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <style>
+    body { font-family: 'Braah One', sans-serif; }
+
+    .text-outline {
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+}
+
+.degrade{
+      background: linear-gradient(145deg, #0C1A3C 50%, #000000 50%);
+
+    }
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes zoomIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+.animate-zoom-in {
+  animation: zoomIn 0.6s ease-out forwards;
+}
+
+  </style>
+</head>
+<body class="bg-[#2561D1] text-white w-screen h-screen relative overflow-hidden">
+
+  
+     <!-- Header -->
+  <header class="flex items-center p-6">
+    <img src="assets/logo.png" alt="Secret Story Logo" class="w-[4.5rem]" />
+    <h1 class="text-[1rem] mx-4 text-black bg-white p-4 rounded-xl">Chaque joueur choisit une carte</h1>
+  </header>
+
+  <div class="flex flex-col items-center justify-between h-[80%] pt-[5rem]">
+
+  <div class="flex flex-col items-center justify-center">
+  
+    <!-- Carte fixe avec dégradé rose -->
+     <!-- Conteneur des indices -->
+<div id="indiceContainer" class="flex items-center justify-center space-x-4 mt-8">
+  <button onclick="prevIndice()" class="text-pink-500 text-3xl"><i class="fa-solid fa-caret-left"></i></button>
+  
+ <div id="indiceDisplay" class="w-[15rem] h-[320px] rounded-[10px] border-[3px] border-white shadow-md flex flex-col items-center justify-center bg-gradient-to-br from-pink-400 to-pink-600">
+  <!-- L’indice sera injecté ici -->
+</div>
+
+  
+  <button onclick="nextIndice()" class="text-pink-500 text-3xl"><i class="fa-solid fa-caret-right"></i></button>
+</div>
+
+  
+
+  <!-- Bouton noir centré sous la carte -->
+ <!-- Bouton compteur -->
+<span id="countdownBtn" 
+      class="bg-black text-white text-sm px-6 py-2 rounded-full shadow-md mt-8">
+  NOUVEL INDICE DANS <span id="countdown">30</span>S
+</span>
+
+</div>
+
+ <div class="w-full flex justify-between px-6">
+    <!-- Demander un indice -->
+<div class="flex flex-col items-center space-y-2">
+  <button class="bg-black h-[6.5rem] px-4 py-4 rounded-full shadow-md hover:bg-pink-100 transition">
+    <img src="assets/oeil_indice.png" alt="Oeil" class="w-[4rem]" />
+  </button>
+  <p class="text-black leading-none text-[1.5rem] font-bold text-center relative top-[-2rem]" style="text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+">DEMANDER <br>UN INDICE</p>
+</div>
+
+    
+
+<div class="flex flex-col items-center">
+  <!-- Bouton rond rouge -->
+  <button class="bg-[#FBB9B9] w-[6.5rem] h-[6.5rem] rounded-full shadow-md flex items-center justify-center hover:bg-red-700 transition">
+    <img src="assets/siren.png" alt="Sirène" class="w-[4rem]" />
+  </button>
+
+  <!-- Texte avec contour blanc -->
+  <p class=" text-[#CD2900] text-[1.5rem] font-bold text-center relative top-[-1rem]"
+     style="text-shadow: -1px -1px 0 #fff,
+                    1px -1px 0 #fff,
+                   -1px 1px 0 #fff,
+                    1px 1px 0 #fff;">
+    BUZZER
+  </p>
+</div>
+
+  </div>
+
+  <!-- Écran de suspense -->
+<div id="suspenseScreen" class="hidden fixed inset-0 degrade z-50 flex flex-col items-center justify-center text-center animate-fade-in">
+  <div class="flex flex-col items-center space-y-6 animate-zoom-in">
+    <img src="assets/oeil.png" alt="Oeil" class="w-[8rem]" />
+    <h2 class="text-white text-2xl font-bold ">NOUVEL INDICE DISPONIBLE</h2>
+  </div>
+</div>
+
+<script>
+  // Liste des indices (texte, audio, image)
+  const indices = [
+    { type: "text", content: "Je change d'identité plusieurs fois par an." },
+    { type: "audio", content: "assets/indice1.mp3" },
+    { type: "image", content: "assets/key.png" },
+    { type: "text", content: "Je parle cinq langues couramment." },
+    { type: "image", content: "assets/coffee.png" }
+  ];
+
+  let currentIndiceIndex = 0;   // indice affiché
+  let unlockedCount = 1;        // nombre d'indices débloqués
+  let countdown = 30;           // secondes restantes
+
+  // --- Affichage d’un indice ---
+  function updateIndiceDisplay() {
+    const container = document.getElementById("indiceDisplay");
+    if (!container) return;
+    const indice = indices[currentIndiceIndex];
+
+    container.innerHTML = "";
+
+    if (indice.type === "text") {
+      const p = document.createElement("p");
+      p.textContent = indice.content;
+      p.className = "text-white text-xl font-bold text-center";
+      container.appendChild(p);
+    }
+
+    if (indice.type === "image") {
+      const img = document.createElement("img");
+      img.src = indice.content;
+      img.className = "w-[13rem] mx-auto rounded-md";
+      container.appendChild(img);
+    }
+
+    if (indice.type === "audio") {
+      container.innerHTML = `
+        <div class="flex items-center space-x-4 bg-black px-4 py-2 rounded-lg shadow-md">
+          <button onclick="playAudio()" class="text-pink-500 text-2xl"><i class="fa-solid fa-play"></i></button>
+          <button onclick="pauseAudio()" class="text-pink-500 text-2xl"><i class="fa-solid fa-pause"></i></button>
+          <span id="audioStatus" class="text-white text-sm">En pause</span>
+        </div>
+        <audio id="customAudio" src="${indice.content}"></audio>
+      `;
+    }
+  }
+
+  // --- Contrôles audio custom ---
+  function playAudio() {
+    const audio = document.getElementById("customAudio");
+    if (audio) {
+      audio.play();
+      document.getElementById("audioStatus").textContent = "Lecture...";
+    }
+  }
+
+  function pauseAudio() {
+    const audio = document.getElementById("customAudio");
+    if (audio) {
+      audio.pause();
+      document.getElementById("audioStatus").textContent = "En pause";
+    }
+  }
+
+  // --- Navigation entre indices ---
+  function nextIndice() {
+    if (currentIndiceIndex < unlockedCount - 1) {
+      currentIndiceIndex++;
+      updateIndiceDisplay();
+    }
+  }
+
+  function prevIndice() {
+    if (currentIndiceIndex > 0) {
+      currentIndiceIndex--;
+      updateIndiceDisplay();
+    }
+  }
+
+  // --- Débloquer un nouvel indice ---
+  function unlockNextIndice() {
+    if (unlockedCount < indices.length) {
+      unlockedCount++;
+    }
+    currentIndiceIndex = unlockedCount - 1;
+    updateIndiceDisplay();
+  }
+
+  // --- Affichage écran suspense ---
+  function showSuspenseScreen() {
+    const screen = document.getElementById("suspenseScreen");
+    if (!screen) return;
+    screen.classList.remove("hidden");
+    setTimeout(() => {
+      screen.classList.add("hidden");
+    }, 4000); // affichage pendant 4s
+  }
+
+  // --- Mise à jour du compteur ---
+  function updateCountdown() {
+    const countdownEl = document.getElementById("countdown");
+    if (countdownEl) countdownEl.textContent = countdown;
+  }
+
+  // --- Tick chaque seconde ---
+  function tick() {
+    countdown--;
+    updateCountdown();
+
+    if (countdown <= 0) {
+      unlockNextIndice();       // débloque un nouvel indice
+      showSuspenseScreen();     // affiche l’écran suspense
+      countdown = 30;           // reset compteur
+      updateCountdown();
+    }
+  }
+
+  // --- Initialisation ---
+  updateIndiceDisplay();
+  updateCountdown();
+  setInterval(tick, 1000);
+</script>
+
+<script src="/register-sw.js"></script>
+</body>
+</html>

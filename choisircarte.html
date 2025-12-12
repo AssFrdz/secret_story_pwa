@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Choix des cartes</title>
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Braah One', sans-serif; }
+    /* Masquer la barre de scroll mais garder le défilement actif */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-[#2561D1] text-white w-screen h-screen overflow-hidden flex flex-col">
+
+  <!-- Header (fixe) -->
+  <header class="flex items-center p-6">
+    <img src="assets/logo.png" alt="Secret Story Logo" class="w-[4.5rem]" />
+    <h1 class="text-[1rem] mx-4 text-black bg-white p-4 rounded-xl">Chaque joueur choisit une carte</h1>
+  </header>
+
+ <main id="cardGrid"
+      class="flex-1 overflow-y-auto no-scrollbar px-4 pb-24 grid grid-cols-2 gap-6 place-content-start">
+</main>
+
+
+
+  <!-- Bouton Play (fixe) -->
+  <div class="absolute bottom-6 right-6">
+    <a href="cartesecret.html" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center">
+      <i class="fas fa-play text-xl"></i>
+    </a>
+  </div>
+
+  <!-- JS dynamique -->
+ <script>
+  const numberOfCards = 12;
+  const cardGrid = document.getElementById('cardGrid');
+
+  for (let i = 0; i < numberOfCards; i++) {
+    const card = document.createElement('div');
+    card.className = [
+      "relative",
+      // largeur = ~40% de l’écran, hauteur proportionnelle
+      "w-[40vw] max-w-[160px]",
+      "h-[25vh] max-h-[220px]",
+      "rounded-[10px] border-[3px] border-white",
+      "shadow-[7px_5px_4px_rgba(0,0,0,0.25)]",
+      "flex items-center justify-center",
+      "bg-[radial-gradient(50%_50%_at_50%_50%,_#FF68B7_0%,_#FF049C_100%)]"
+    ].join(" ");
+
+    const logo = document.createElement('img');
+    logo.src = "assets/logo.png";
+    logo.alt = "Carte Secret Story";
+    logo.className = "w-1/2"; // logo prend la moitié de la carte
+    card.appendChild(logo);
+
+    if (i === 0 || i === 1) {
+      const label = document.createElement('span');
+      label.className = "absolute bottom-2 left-2 text-xs";
+      label.textContent = `Joueur ${i + 1}`;
+      card.appendChild(label);
+    }
+
+    cardGrid.appendChild(card);
+  }
+</script>
+<script src="/register-sw.js"></script>
+</body>
+</html>

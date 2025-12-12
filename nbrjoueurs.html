@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2561D1" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="/assets/icons/icon-192.png" />
+  <title>Nombre de joueurs</title>
+  <link rel="stylesheet" href="/assets/tailwind.css">
+  <link href="https://fonts.googleapis.com/css2?family=Braah+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: 'Braah One', sans-serif;
+    }
+    .diagonal-bg {
+      background: linear-gradient(170deg, #3b82f6 50%, #ec4899 50%);
+    }
+  </style>
+</head>
+<body class="bg-[#2561D1] text-white w-screen h-screen relative overflow-hidden">
+
+  <!-- Logo -->
+  <div class="absolute top-6 left-6 flex items-center">
+    <img src="assets/logo.png" alt="Secret Story Logo" class="w-[4.5rem]" />
+    
+    <h1 class="text-[1rem] mx-4 text-black bg-white p-4 rounded-xl ">Saisis le nombre de joueurs :</h1>
+
+  </div>
+
+ 
+
+  <!-- Sélecteur -->
+  <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+    <button id="up" class="text-pink-300 text-4xl hover:text-white mb-2">
+      <i class="fas fa-chevron-up"></i>
+    </button>
+    <div id="playerCount" class="text-3xl font-bold">10 Joueurs</div>
+    <button id="down" class="text-pink-300 text-4xl hover:text-white mt-2">
+      <i class="fas fa-chevron-down"></i>
+    </button>
+  </div>
+
+  <!-- Bouton Play -->
+  <div class="absolute bottom-6 right-6">
+    <a href="choisircarte.html" class="w-16 h-16 rounded-full bg-white text-pink-500 shadow-lg flex items-center justify-center">
+      <i class="fas fa-play text-xl"></i>
+    </a>
+  </div>
+
+  <!-- JS pour incrémenter/décrémenter -->
+  <script>
+    const playerCount = document.getElementById('playerCount');
+    const up = document.getElementById('up');
+    const down = document.getElementById('down');
+    let count = 10;
+
+    up.addEventListener('click', () => {
+      if (count < 20) count++;
+      playerCount.textContent = `${count} Joueurs`;
+    });
+
+    down.addEventListener('click', () => {
+      if (count > 2) count--;
+      playerCount.textContent = `${count} Joueurs`;
+    });
+  </script>
+
+  <script src="/register-sw.js"></script>
+</body>
+</html>
